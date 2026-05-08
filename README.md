@@ -8,7 +8,7 @@
 ![Hardware](https://img.shields.io/badge/Hardware-RaspberryPi-red)
 ![Database](https://img.shields.io/badge/Database-MySQL-lightgrey)
 
-생산라인 불량 검출, 실시간 모니터링, 관리자 채팅, 하드웨어 제어를 통합한 스마트 공장 관리 시스템입니다.
+생산라인 불량 검출, 실시간 모니터링, 관리자 채팅 및 하드웨어 제어 기능을 통합한 스마트 공장 모니터링 시스템입니다.
 
 ---
 
