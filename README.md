@@ -61,7 +61,7 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(C# WinForms
 | 구분 | 내용 |
 |------|------|
 | Backend | Python, Flask |
-| Frontend | HTML, CSS, JavaScript |
+| Frontend | HTML/CSS, JavaScript |
 | Desktop | MFC(C++), WinForms(C#) |
 | AI / Vision | YOLO, OpenCV |
 | Communication | Socket.IO, TCP/IP, RS232 |
@@ -86,9 +86,9 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(C# WinForms
 - 검출 결과를 서버 및 관리자 화면과 연동
 
 ### 💬 실시간 채팅 기능
-- Socket.IO 기반 관리자 간 실시간 채팅
-- 현장 관리자와 전체 관리자 간 메시지 송수신
-- 관리자 간 실시간 커뮤니케이션 기능 제공
+- Socket.IO 기반 실시간 채팅 기능 구현
+- 시스템 사용자 간 실시간 메시지 송수신
+- 시스템 사용자 간 실시간 커뮤니케이션 기능 제공
 - 파일 및 메시지 전송 기능 구현
 
 ### 🖥 현장 관리자 시스템
@@ -118,7 +118,7 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(C# WinForms
 - C# WinForms 기반 현장 카메라 프로그램 구현
 - YOLO 및 OpenCV 기반 실시간 불량 검출 기능 구현
 - Socket.IO 기반 실시간 채팅 기능 구현
-- TCP/IP 및 RS232 기반 통신 처리
+- TCP/IP Socket 및 RS232 기반 통신 처리
 - Raspberry Pi 및 GPIO 기반 장비 제어 기능 구현
 - MySQL 기반 생산라인 및 사용자 데이터 관리
 
@@ -134,7 +134,7 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(C# WinForms
 ---
 
 ## 🎥 시연 영상
-[시연 영상 보기](여기에_영상링크_넣기)
+시연 영상은 추후 업로드 예정입니다.
 
 ---
 
