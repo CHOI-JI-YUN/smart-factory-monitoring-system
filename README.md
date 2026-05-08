@@ -3,7 +3,8 @@
 ![Backend](https://img.shields.io/badge/Backend-Flask-black)
 ![Desktop](https://img.shields.io/badge/Desktop-MFC%20%7C%20WinForms-blue)
 ![AI](https://img.shields.io/badge/AI-YOLO%20%7C%20OpenCV-green)
-![Communication](https://img.shields.io/badge/Communication-Socket.IO%20%7C%20TCP/IP-orange)
+![Communication](https://img.shields.io/badge/Communication-Socket.IO%20%7C%20TCP/IP%20%7C%20RS232-orange)
+![Hardware](https://img.shields.io/badge/Hardware-RaspberryPi-red)
 ![Database](https://img.shields.io/badge/Database-MySQL-lightgrey)
 
 Flask, MFC, WinForms, YOLO 기반의 생산라인 모니터링 및 실시간 채팅 시스템
@@ -20,6 +21,9 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(WinForms), 
 또한 Socket.IO 기반 실시간 채팅 기능을 구현하여  
 현장 관리자와 전체 관리자 간 즉각적인 커뮤니케이션이 가능하도록 설계했습니다.
 
+Raspberry Pi와 GPIO를 활용하여 생산라인 장비 상태를 처리하고,  
+RS232 통신 기반 외부 장비 연동 기능도 함께 구현했습니다.
+
 ---
 
 ## 📅 프로젝트 정보
@@ -34,7 +38,7 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(WinForms), 
 - 현장 카메라 (C# WinForms)
 - 전체 관리자 Web Dashboard
 - YOLO 기반 불량 검출 시스템
-- Raspberry Pi 연동 시스템
+- Raspberry Pi 기반 장비 제어 시스템
 - Socket.IO 기반 실시간 채팅 시스템
 
 ---
@@ -52,7 +56,7 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(WinForms), 
 4. 관리자 Web Dashboard 실시간 모니터링  
 5. MFC 현장 관리자 시스템 상태 확인  
 6. Socket.IO 기반 실시간 채팅 수행  
-7. Raspberry Pi 제어 및 현장 장비 연동  
+7. Raspberry Pi 및 RS232 기반 장비 연동 처리  
 
 ---
 
@@ -65,7 +69,7 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(WinForms), 
 | AI / Vision | YOLO, OpenCV |
 | Communication | Socket.IO, TCP/IP, RS232 |
 | Database | MySQL |
-| Hardware | Raspberry Pi |
+| Hardware | Raspberry Pi, GPIO |
 
 ---
 
@@ -75,11 +79,13 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(WinForms), 
 - 실시간 생산라인 영상 출력
 - Flask 기반 영상 스트리밍 처리
 - Web Dashboard 상태 모니터링
+- 생산라인 상태 데이터 실시간 출력
 
 ### 🤖 불량 검출 시스템
 - YOLO 기반 객체 검출
 - 불량 위치 및 확률 표시
 - 검출 데이터 실시간 처리
+- OpenCV 기반 영상 처리 기능 구현
 
 ### 💬 실시간 채팅 기능
 - Socket.IO 기반 관리자 채팅
@@ -90,10 +96,13 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(WinForms), 
 - 생산 상태 실시간 확인
 - 불량 검출 결과 조회
 - 설비 및 상태 데이터 확인
+- 현장 관리자(MFC) 기반 상태 제어
 
 ### ⚙ Raspberry Pi 연동
-- GPIO 기반 장비 제어
-- 생산라인 장비 상태 연동
+- Raspberry Pi 기반 생산라인 장비 제어
+- GPIO 신호 기반 장비 상태 처리
+- RS232 통신 기반 외부 장비 연동
+- 생산라인 상태 데이터 실시간 처리
 
 ---
 
@@ -102,7 +111,9 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(WinForms), 
 - MFC 기반 현장 관리자 프로그램 구현
 - WinForms 기반 카메라 및 영상 처리 프로그램 구현
 - YOLO 기반 실시간 불량 검출 기능 구현
+- OpenCV 기반 영상 분석 처리
 - Socket.IO 기반 실시간 채팅 기능 구현
+- Raspberry Pi 및 GPIO 기반 장비 제어 기능 구현
 - Web Dashboard UI 및 상태 모니터링 구현
 
 ---
@@ -112,6 +123,7 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(WinForms), 
 - 실시간 영상 처리와 관리자 채팅 기능 결합
 - Flask 중심의 서버-클라이언트 구조 설계
 - 현장 관리자 / 전체 관리자 역할 기반 시스템 구성
+- Raspberry Pi 및 RS232 기반 하드웨어 연동 구현
 
 ---
 
