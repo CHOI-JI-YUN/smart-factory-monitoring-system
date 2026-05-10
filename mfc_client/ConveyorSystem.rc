@@ -1,0 +1,329 @@
+// Microsoft Visual C++ generated resource script.
+//
+#pragma code_page(65001)
+
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+#include "verrsrc.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 한국어(대한민국) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
+LANGUAGE LANG_KOREAN, SUBLANG_DEFAULT
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "#include ""verrsrc.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)\r\n"
+    "LANGUAGE 18, 1\r\n"
+    "#include ""res\\ConveyorSystem.rc2""\r\n"
+    "#include ""l.KOR\\afxres.rc""\r\n"
+    "#if !defined(_AFXDLL)\r\n"
+    "#include ""l.KOR\\afxribbon.rc""\r\n"
+    "#endif\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\Conveyor_System.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CONVEYOR_SYSTEM_DIALOG DIALOGEX 0, 0, 766, 336
+STYLE DS_SETFONT | DS_MODALFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+FONT 12, "Noto Sans KR Medium", 500, 0, 0x81
+BEGIN
+    LTEXT           "Speed : ",IDC_STATIC_CURRENT_SPEED,56,34,40,12
+    LTEXT           "Step 1 (Low)",IDC_STATIC_SPEED_VALUE,103,34,120,12
+    GROUPBOX        "",IDC_GROUP_TEMP,29,56,309,42,BS_CENTER
+    LTEXT           "Temp",IDC_STATIC_TEMP,101,70,30,12
+    LTEXT           "--.-",IDC_STATIC_TEMP_VALUE,102,79,14,14
+    LTEXT           "C",IDC_STATIC_DEG,119,80,10,10
+    LTEXT           "Humi",IDC_STATIC_HUMI,229,68,30,12
+    LTEXT           "--.-",IDC_STATIC_HUMI_VALUE,231,79,20,9
+    LTEXT           "%",IDC_STATIC_PERCENT,253,79,16,14
+    GROUPBOX        "",IDC_GROUP_CONVEYOR,28,107,310,45,BS_CENTER
+    PUSHBUTTON      "ON",IDC_BTN_CONVEYOR_ON,55,123,109,22
+    PUSHBUTTON      "OFF",IDC_BTN_CONVEYOR_OFF,190,123,113,21
+    GROUPBOX        "",IDC_STATIC_FAN_ONOFF,28,156,310,43,BS_CENTER
+    PUSHBUTTON      "ON",IDC_BTN_FAN_ON,54,169,110,21
+    PUSHBUTTON      "OFF",IDC_BTN_FAN_OFF,190,169,115,21
+    GROUPBOX        "",IDC_STATIC_LOG,28,208,308,114,BS_CENTER
+    LISTBOX         IDC_LIST_LOG,38,224,292,93,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_GROUP_SPEED,357,25,384,43,BS_CENTER
+    PUSHBUTTON      "Step 1",IDC_BTN_SPEED_1,368,45,116,16
+    PUSHBUTTON      "Step 2",IDC_BTN_SPEED_2,492,45,116,16
+    PUSHBUTTON      "Step 3",IDC_BTN_SPEED_3,615,45,116,16
+    PUSHBUTTON      "EMERGENCY STOP",IDC_BTN_EMERGENCY_STOP,356,76,370,21
+    LTEXT           "",IDC_STATIC_EMERGENCY_COLOR,728,76,14,21
+    GROUPBOX        "",IDC_GROUP_MONITORING,356,103,388,146,BS_CENTER
+    LTEXT           "",IDC_STATIC_CHART,361,119,380,126
+    CTEXT           "Fan",IDC_STATIC_FAN,549,281,14,11
+    CTEXT           "OFF",IDC_STATIC_STS_CONVEYOR,427,296,18,8
+    CTEXT           "OFF",IDC_STATIC_STS_FAN,550,295,14,10
+    CTEXT           "Safety",IDC_STATIC_SAFETY,663,282,20,12
+    CTEXT           "NORMAL",IDC_STATIC_STS_SAFETY,659,296,30,10
+    GROUPBOX        "",IDC_STATIC_SYSTEM_STATE2,357,256,386,66,BS_CENTER
+    CTEXT           "Conveyor",IDC_STATIC_CONVEYOR2,418,282,41,12
+    GROUPBOX        "",IDC_STATIC_SPEED,29,22,310,29,BS_CENTER
+    LTEXT           "Conveyor Belt Monitoring System",IDC_STATIC_TITLE,27,7,124,9
+    CTEXT           "Current Speed",IDC_STATIC_SPEED_TEXT,154,22,49,8
+    CTEXT           "Temperature / Humidity",IDC_GROUP_TEMP_TEXT,140,56,82,8
+    CTEXT           "Conveyor Belt ON/OFF",IDC_GROUP_CONVEYOR_TEXT,143,107,74,8
+    CTEXT           "Conveyor Belt Speed",IDC_GROUP_SPEED_TEXT,520,24,68,8
+    CTEXT           "Monitoring",IDC_GROUP_MONITORING_TEXT,536,102,35,8
+    CTEXT           "System Status",IDC_STATIC_SYSTEM_STATE_TEXT,533,256,48,8
+    LTEXT           "Log",IDC_STATIC_LOG_TEXT,172,207,12,8
+    CTEXT           "Fan ON/OFF",IDC_STATIC_FAN_ONOFF_TEXT,159,155,41,8
+    PUSHBUTTON      "Capture",IDC_BTN_CAP,659,110,37,9,BS_BOTTOM
+    PUSHBUTTON      "-",IDC_BTN_MIN,699,110,20,9,BS_BOTTOM
+    PUSHBUTTON      "+",IDC_BTN_MAX,722,110,17,9,BS_BOTTOM
+    PUSHBUTTON      "Settings",IDC_BTN_SETTINGS,648,8,42,11,BS_FLAT
+    PUSHBUTTON      "Logout",IDC_BTN_LOGOUT,693,8,48,11
+    PUSHBUTTON      "Alert History",IDC_BTN_ALERT_HISTORY,549,8,96,11
+END
+
+IDD_ALERT_HISTORY DIALOGEX 0, 0, 475, 309
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Alert History"
+FONT 11, "Noto Sans KR Medium", 500, 0, 0x81
+BEGIN
+    LTEXT           "Alert History",IDC_STATIC_ALERT_TITLE,20,9,200,14
+    LTEXT           "Today: 0",IDC_STATIC_ALERT_TOTAL,21,22,74,12
+    LTEXT           "WARNING: 0",IDC_STATIC_ALERT_WARNING,116,22,71,12
+    LTEXT           "DANGER: 0",IDC_STATIC_ALERT_DANGER,223,22,56,12
+    LTEXT           "STOP: 0",IDC_STATIC_ALERT_STOP,327,22,137,12
+    CONTROL         "",IDC_LIST_ALERTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,14,37,444,239
+    PUSHBUTTON      "Refresh",IDC_BTN_ALERT_REFRESH,320,284,70,16
+    PUSHBUTTON      "Reset",IDC_BTN_ALERT_RESET,396,284,60,16
+END
+
+IDD_LOGIN_DIALOG DIALOGEX 0, 0, 341, 199
+STYLE DS_SETFONT | DS_MODALFRAME | WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Conveyor System Login"
+FONT 11, "Noto Sans KR Medium", 500, 0, 0x81
+BEGIN
+    CTEXT           "CONVEYOR SYSTEM",IDC_STATIC_LOGIN_TITLE,143,24,64,9
+    RTEXT           "ID",IDC_STATIC_LOGIN_ID,116,58,8,8
+    EDITTEXT        IDC_EDIT_LOGIN_ID,135,57,94,12,ES_AUTOHSCROLL
+    RTEXT           "PW",IDC_STATIC_LOGIN_PW,115,80,11,9
+    EDITTEXT        IDC_EDIT_LOGIN_PW,135,78,94,12,ES_PASSWORD | ES_AUTOHSCROLL
+    PUSHBUTTON      "Login",IDC_BTN_LOGIN,145,109,54,11
+END
+
+IDD_SETTINGS DIALOGEX 0, 0, 330, 305
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "System Settings"
+FONT 11, "Noto Sans KR Medium", 500, 0, 0x81
+BEGIN
+    LTEXT           "SETTINGS",IDC_STATIC_SECT_COMM,45,10,120,10
+    LTEXT           "Serial port",-1,45,26,50,10
+    COMBOBOX        IDC_COMBO_SERIAL_PORT,45,37,108,100,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Baud rate",-1,166,26,50,10
+    COMBOBOX        IDC_COMBO_BAUD_RATE,166,37,108,100,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Flask server IP",-1,45,57,60,10
+    EDITTEXT        IDC_EDIT_FLASK_IP,45,68,108,12,ES_AUTOHSCROLL
+    LTEXT           "TCP port",-1,166,57,40,10
+    EDITTEXT        IDC_EDIT_TCP_PORT,166,68,45,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "HTTP port",-1,224,57,45,10
+    EDITTEXT        IDC_EDIT_HTTP_PORT,224,68,50,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "ALERT THRESHOLDS",IDC_STATIC_SECT_ALERT,45,94,120,10
+    LTEXT           "Temperature warning (C)",-1,45,110,120,10
+    RTEXT           "28.0",IDC_STATIC_VAL_TEMP_WARN,231,110,40,10
+    CONTROL         "",IDC_SLIDER_TEMP_WARN,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,45,122,230,15
+    LTEXT           "Temperature danger (C)",-1,45,142,120,10
+    RTEXT           "33.0",IDC_STATIC_VAL_TEMP_DANGER,231,142,40,10
+    CONTROL         "",IDC_SLIDER_TEMP_DANGER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,45,154,230,15
+    LTEXT           "Humidity warning (%)",-1,45,174,120,10
+    RTEXT           "50.0",IDC_STATIC_VAL_HUMI_WARN,231,174,40,10
+    CONTROL         "",IDC_SLIDER_HUMI_WARN,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,45,186,230,15
+    LTEXT           "EMERGENCY",IDC_STATIC_SECT_EMG,45,240,48,10
+    LTEXT           "Cooldown time",-1,91,240,60,10
+    COMBOBOX        IDC_COMBO_EMG_COOLDOWN,147,239,125,100,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "Save",IDOK,216,268,60,18
+    PUSHBUTTON      "Cancel",IDCANCEL,146,268,60,18
+    LTEXT           "Humidity warning (%)",-1,45,206,120,10
+    RTEXT           "70.0",IDC_STATIC_VAL_HUMI_DANGER,231,206,40,10
+    CONTROL         "",IDC_SLIDER_HUMI_DANGER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,45,218,230,15
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041204B0"
+        BEGIN
+            VALUE "CompanyName", "TODO: <Company>"
+            VALUE "FileDescription", "Conveyor_System"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "Conveyor_System.exe"
+            VALUE "LegalCopyright", "TODO: (c) <Company>. All rights reserved."
+            VALUE "OriginalFilename", "Conveyor_System.exe"
+            VALUE "ProductName", "TODO: <Product>"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x412, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_CONVEYOR_SYSTEM_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 764
+        BOTTOMMARGIN, 333
+    END
+
+    IDD_ALERT_HISTORY, DIALOG
+    BEGIN
+        RIGHTMARGIN, 473
+        BOTTOMMARGIN, 307
+    END
+
+    IDD_LOGIN_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 339
+        BOTTOMMARGIN, 196
+    END
+
+    IDD_SETTINGS, DIALOG
+    BEGIN
+        RIGHTMARGIN, 328
+        BOTTOMMARGIN, 303
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_CONVEYOR_SYSTEM_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ALERT_HISTORY AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_LOGIN_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_SETTINGS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // 한국어(대한민국) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
+LANGUAGE 18, 1
+#include "res\ConveyorSystem.rc2"
+#include "l.KOR\afxres.rc"
+#if !defined(_AFXDLL)
+#include "l.KOR\afxribbon.rc"
+#endif
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
