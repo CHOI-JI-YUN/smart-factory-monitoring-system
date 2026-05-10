@@ -133,6 +133,59 @@ Flask 서버를 중심으로 현장 관리자(MFC), 현장 카메라(C# WinForms
 
 ---
 
+## 📁 프로젝트 구조
+
+```text
+smart-factory-monitoring-system/
+
+├── flask_server/              # Flask 기반 API 서버 및 Web Dashboard
+│   ├── instance/
+│   ├── routes/
+│   ├── static/css/
+│   ├── templates/
+│   ├── app.py
+│   ├── config.py
+│   ├── flask_server.py
+│   ├── models.py
+│   ├── requirements.txt
+│   ├── schema.sql
+│   ├── socket_handlers.py
+│   └── tcp_server.py
+│
+├── mfc_client/                # MFC 기반 현장 관리자 프로그램
+│   ├── AlertHistoryDlg.cpp
+│   ├── Conveyor_System.cpp
+│   ├── DatabaseManager.cpp
+│   ├── HttpClient.cpp
+│   ├── LoginDlg.cpp
+│   ├── MonitorClient.cpp
+│   ├── SerialComm.cpp
+│   ├── TcpClient.cpp
+│   ├── TcpServer.cpp
+│   ├── VoiceAlert.cpp
+│   └── Conveyor_System.vcxproj
+│
+├── raspberry_pi/              # Raspberry Pi 기반 장비 제어 모듈
+│   └── rpi_conveyor.py
+│
+├── winforms_camera/           # C# WinForms 기반 현장 카메라 프로그램
+│   ├── DefectDetector.cs
+│   ├── Form1.cs
+│   ├── Form2.cs
+│   ├── Program.cs
+│   └── WORK2.csproj
+│
+├── images/                    # README 실행 화면 및 시스템 구성 이미지
+│
+├── docs/                      # 발표 자료
+│   └── smart_factory_monitoring_presentation.pdf
+│
+├── .gitignore
+└── README.md
+```
+
+---
+
 ## 🎥 시연 영상
 시연 영상은 추후 업로드 예정입니다.
 
