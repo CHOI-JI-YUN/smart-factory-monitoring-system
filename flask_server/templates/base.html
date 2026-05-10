@@ -1,0 +1,115 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}스마트 컨베이어{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- 상단 네비게이션 -->
+    <nav class="navbar">
+        <div class="nav-brand">🏭 스마트 컨베이어 관제</div>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link">대시보드</a>
+            <a href="/defect" class="nav-link">불량 확인</a>
+
+            <a href="/members" class="nav-link">회원 관리</a>
+            <a href="/monitor" class="nav-link">모니터링</a>
+            <a href="/chat" class="nav-link">채팅</a>
+            <span class="nav-user">{{ user_name }} ({{ user_id }})</span>
+            <a href="/logout" class="nav-link nav-logout">로그아웃</a>
+        </div>
+
+        <!-- 비상정지 버튼 -->
+        <button id="btn-emergency" class="btn-emergency" onclick="emergencyStop()">
+            🚨 비상정지
+        </button>
+    </nav>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <script>
+          alert("{{ messages[0] }}");
+        </script>
+      {% endif %}
+    {% endwith %}
+
+    <!-- 알림 영역 -->
+    <div id="alert-area"></div>
+
+    <!-- 페이지 콘텐츠 -->
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- WebSocket 기본 스크립트 -->
+    <script>
+        const socket = io();
+        // 연결되면 서버에 user_id 등록 (창 닫힘 자동 로그아웃용)
+        socket.on('connect', function() {
+            const userId = '{{ user_id }}';
+            if (userId) socket.emit('register_user', { user_id: userId });
+        });
+
+        // 3초마다 heartbeat
+        setInterval(function() {
+            const userId = '{{ user_id }}';
+            if (userId) socket.emit('heartbeat', {});
+        }, 3000);
+
+        // 접속자 수 실시간 업데이트
+        socket.on('online_count', function(data) {
+            const el = document.getElementById('online-count');
+            if (el) el.textContent = data.count + '명';
+        });
+
+        // 채팅 메시지 알림 (다른 페이지에서도 표시)
+        socket.on('receive_message', function(data) {
+            const currentUserId = '{{ user_id }}';
+            if (data.sender_id !== currentUserId) {
+                showAlert('💬 ' + (data.sender_name || data.sender_id) + ': ' + data.message, 'warning');
+            }
+        });
+
+        socket.on('emergency_triggered', function(data) {
+            showAlert('🚨 비상정지 발생! (발생: ' + data.by + ')', 'danger');
+        });
+
+        socket.on('emergency_released', function(data) {
+            showAlert('✅ 비상정지 해제됨', 'success');
+        });
+
+        socket.on('sensor_alert', function(data) {
+            showAlert('⚠️ ' + data.message, 'warning');
+        });
+
+        socket.on('new_defect', function(data) {
+            showAlert('🔴 불량 검출: ' + data.type + ' (신뢰도 ' + (data.confidence * 100).toFixed(0) + '%)', 'warning');
+        });
+
+        // ── 중복 로그인 강제 로그아웃 처리 ──
+        socket.on('force_logout', function(data) {
+            alert(data.message || '다른 기기에서 로그인되어 현재 세션이 종료됩니다.');
+            window.location.href = '/login';
+        });
+
+        function showAlert(message, type) {
+            const area = document.getElementById('alert-area');
+            const div = document.createElement('div');
+            div.className = 'alert alert-' + type;
+            div.textContent = message;
+            area.appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        
+    
+</script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!-- templates/monitor.html -->
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>모니터링 — 스마트 컨베이어</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#1d4ed8;--primary-hover:#1e40af;
+  --navy:#1e3a5f;
+  --text:#111827;--text-sec:#6b7280;--text-muted:#9ca3af;
+  --border:#e5e7eb;--bg:#f3f4f6;--white:#fff;
+  --danger:#dc2626;--success:#16a34a;--warning:#d97706;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 4px 6px -1px rgba(0,0,0,.07);
+}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;font-size:14px;}
+
+/* DEFECT SUMMARY */
+.frame-log{max-height:140px;}
+.mini-count-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mini-count-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:var(--shadow-sm);}
+.mini-count-title{font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:8px;}
+.mini-count-value{font-size:24px;font-weight:700;}
+.mini-count-value.defect{color:var(--danger);}
+.mini-count-value.normal{color:var(--success);}
+
+
+/* NAV */
+.navbar{background:var(--navy);height:56px;display:flex;align-items:center;padding:0 28px;flex-shrink:0;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.nav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:32px;}
+.nav-brand-icon{width:30px;height:30px;background:var(--primary);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.nav-brand-icon svg{width:17px;height:17px;fill:white;}
+.nav-brand-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.3px;white-space:nowrap;}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1;}
+.nav-link{color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:6px;transition:background .15s,color .15s;white-space:nowrap;}
+.nav-link:hover{background:rgba(255,255,255,.08);color:#fff;}
+.nav-link.active{background:rgba(255,255,255,.13);color:#fff;}
+.nav-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.nav-user{font-size:13px;color:rgba(255,255,255,.5);}
+.nav-logout{font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .15s;}
+.nav-logout:hover{color:#fff;}
+.btn-emergency{display:flex;align-items:center;gap:6px;background:#dc2626;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s;white-space:nowrap;}
+.btn-emergency:hover{background:#b91c1c;}
+.btn-emergency svg{width:14px;height:14px;fill:white;flex-shrink:0;}
+
+/* PAGE */
+.page-content{flex:1;padding:28px 32px;max-width:1280px;width:100%;margin:0 auto;}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.page-title{font-size:20px;font-weight:700;letter-spacing:-.4px;}
+.page-subtitle{font-size:13px;color:var(--text-sec);margin-top:3px;}
+
+/* STATUS BAR */
+.status-bar{display:flex;align-items:center;gap:10px;margin-right:100px;}
+.conn-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid;}
+.conn-badge.connected{background:#f0fdf4;color:var(--success);border-color:#bbf7d0;}
+.conn-badge.disconnected{background:#fef2f2;color:var(--danger);border-color:#fca5a5;}
+.conn-badge.waiting{background:#fffbeb;color:var(--warning);border-color:#fde68a;}
+.conn-dot{width:7px;height:7px;border-radius:50%;}
+.connected .conn-dot{background:var(--success);}
+.disconnected .conn-dot{background:var(--danger);}
+.waiting .conn-dot{background:var(--warning);animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+#conn-badge{transform:translateY(18px);}
+
+/* VIDEO LAYOUT */
+.monitor-layout{display:grid;grid-template-columns:800px 300px;gap:16px;align-items:start;}
+
+/* VIDEO CARD */
+.video-card{background:#000;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);width:800px;}
+.video-header{background:#111827;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;}
+.video-header-left{display:flex;align-items:center;gap:8px;}
+.video-dot{width:8px;height:8px;border-radius:50%;background:var(--danger);}
+.video-dot.live{background:var(--danger);animation:pulse-red 1.5s infinite;}
+@keyframes pulse-red{0%,100%{opacity:1;}50%{opacity:.4;}}
+.video-label{font-size:12px;font-weight:600;color:#fff;letter-spacing:.5px;}
+.video-fps{font-size:11px;color:var(--text-muted);}
+.video-wrap{position:relative;width:800px;height:600px;background:#0a0a0a;display:flex;align-items:center;justify-content:center;}
+#liveFrame{width:100%;height:100%;object-fit:contain;display:none;}
+.no-signal{display:flex;flex-direction:column;align-items:center;gap:12px;color:#333;}
+.no-signal svg{width:48px;height:48px;fill:#222;}
+.no-signal p{font-size:13px;color:#444;}
+.no-signal span{font-size:11px;color:#333;}
+.video-footer{background:#0d1117;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;}
+.video-info{font-size:11px;color:#444;font-family:monospace;}
+.video-time{font-size:11px;color:#333;font-family:monospace;}
+
+#conn-badge{position:relative;top:12px;}
+
+/* INFO PANEL */
+.info-panel{display:flex;flex-direction:column;gap:14px;}
+
+.info-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow-sm);}
+.info-card-title{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px;}
+
+.stat-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);}
+.stat-item:last-child{border-bottom:none;}
+.stat-item-label{font-size:12px;color:var(--text-sec);}
+.stat-item-value{font-size:13px;font-weight:600;color:var(--text);}
+
+/* 프레임 로그 */
+.frame-log{max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;}
+.frame-log::-webkit-scrollbar{width:4px;}
+.frame-log::-webkit-scrollbar-track{background:transparent;}
+.frame-log::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.log-item{font-size:11px;color:var(--text-muted);font-family:monospace;padding:2px 0;}
+.log-item.new{color:var(--success);}
+
+/* ALERT */
+#alert-area{position:fixed;top:68px;right:20px;z-index:200;width:340px;display:flex;flex-direction:column;gap:8px;}
+.alert{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);background:var(--white);border:1px solid var(--border);}
+.alert-danger{border-left:3px solid var(--danger);}
+.alert-success{border-left:3px solid var(--success);}
+.alert-warning{border-left:3px solid var(--warning);}
+
+@media(max-width:900px){
+  .monitor-layout{grid-template-columns:1fr;}
+  .page-content{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/dashboard" class="nav-brand">
+    <div class="nav-brand-icon">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+    </div>
+    <span class="nav-brand-name">스마트 컨베이어 관제</span>
+  </a>
+  <div class="nav-links">
+    <a href="/dashboard" class="nav-link">대시보드</a>
+    <a href="/defect" class="nav-link">불량 확인</a>
+    <a href="/members" class="nav-link">회원 관리</a>
+    <a href="/monitor" class="nav-link active">모니터링</a>
+    <a href="/chat" class="nav-link">채팅</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user">{{ user_name }} ({{ user_id }})</span>
+    <a href="/logout" class="nav-logout">로그아웃</a>
+    <button class="btn-emergency" onclick="emergencyStop()">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      비상정지
+    </button>
+  </div>
+</nav>
+
+<div id="alert-area"></div>
+
+<div class="page-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">모니터링</div>
+      <div class="page-subtitle">실시간 영상 스트림</div>
+    </div>
+    <div class="status-bar">
+      <div class="conn-badge waiting" id="conn-badge">
+        <div class="conn-dot"></div>
+        <span id="conn-text">연결 대기 중</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="monitor-layout">
+    <!-- 영상 -->
+    <div class="video-card">
+      <div class="video-header">
+        <div class="video-header-left">
+          <div class="video-dot" id="live-dot"></div>
+          <span class="video-label">LIVE</span>
+        </div>
+        <span class="video-fps" id="fps-label">-- FPS</span>
+      </div>
+      <div class="video-wrap">
+        <img id="liveFrame" alt="live stream">
+        <div class="no-signal" id="noSignal">
+          <svg viewBox="0 0 24 24"><path d="M21 6.5l-4-4-9.5 9.5-2.5-2.5L3.5 11 7 14.5 3 18.5l1.5 1.5L8 16l3.5 3.5 1.5-1.5-2.5-2.5L21 6.5zm-11 8l-2-2 9-9 2 2-9 9z"/></svg>
+          <p>신호 없음</p>
+          <span>C# WinForm 연결을 확인하세요</span>
+        </div>
+      </div>
+      <div class="video-footer">
+        <span class="video-info" id="video-res">해상도: --</span>
+        <span class="video-time" id="video-time">--:--:--</span>
+      </div>
+    </div>
+
+    <!-- 우측 정보 패널 -->
+    <div class="info-panel">
+
+      <!-- 스트림 정보 -->
+      <div class="info-card">
+        <div class="info-card-title">스트림 정보</div>
+
+        <div class="stat-item">
+          <span class="stat-item-label">상태</span>
+          <span class="stat-item-value" id="info-status">대기 중</span>
+        </div>
+
+        <div class="stat-item">
+          <span class="stat-item-label">수신 프레임</span>
+          <span class="stat-item-value" id="info-frames">0</span>
+        </div>
+
+        <div class="stat-item">
+          <span class="stat-item-label">평균 FPS</span>
+          <span class="stat-item-value" id="info-fps">--</span>
+        </div>
+
+        <div class="stat-item">
+          <span class="stat-item-label">마지막 수신</span>
+          <span class="stat-item-value" id="info-last">--</span>
+        </div>
+      </div>
+
+      <!-- 수신 로그 -->
+      <div class="info-card">
+        <div class="info-card-title">수신 로그</div>
+        <div class="frame-log" id="frameLog">
+          <div class="log-item">-- 대기 중 --</div>
+        </div>
+      </div>
+
+      <!-- 🔥 총 불량 / 정상 (여기 위치 고정) -->
+      <div class="mini-count-row">
+        <div class="mini-count-card">
+          <div class="mini-count-title">총 불량 개수</div>
+          <div class="mini-count-value defect" id="monitor-defect-count">0</div>
+        </div>
+
+        <div class="mini-count-card">
+          <div class="mini-count-title">총 정상 개수</div>
+          <div class="mini-count-value normal" id="monitor-normal-count">0</div>
+        </div>
+      </div>
+
+    </div>
+
+<script>
+const socket = io();
+
+function getLocalDate() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+
+function loadMonitorSummary() {
+  fetch('/api/defect/summary?date=' + getLocalDate())
+    .then(res => res.json())
+    .then(data => {
+      console.log('불량 요약:', data);
+
+      if (data.status !== 'ok') return;
+
+      document.getElementById('monitor-defect-count').textContent =
+      (data.total_defect_events || data.events.length || 0).toLocaleString();
+
+      document.getElementById('monitor-normal-count').textContent =
+        Number(data.total_normal || 0).toLocaleString();
+    });
+}
+
+loadMonitorSummary();
+setInterval(loadMonitorSummary, 2000);
+
+socket.on('new_defect', loadMonitorSummary);
+socket.on('normal_event', loadMonitorSummary);
+socket.on('normal_update', loadMonitorSummary);
+
+  // 창 닫힘 자동 로그아웃용 user_id 등록
+  socket.on('connect', function() {
+    const userId = '{{ user_id }}';
+    if (userId) socket.emit('register_user', { user_id: userId });
+  });
+    
+  // 30초마다 heartbeat 전송
+// ── 중복 로그인 강제 로그아웃 처리 ──
+socket.on('force_logout', function(data) {
+  alert(data.message || '다른 기기에서 로그인되어 현재 세션이 종료됩니다.');
+  window.location.href = '/login';
+});
+
+  setInterval(function() {
+    const userId = '{{ user_id }}';
+    if (userId) socket.emit('heartbeat', {});
+  }, 3000);
+
+  // 접속자 수 실시간 업데이트
+  socket.on('online_count', function(data) {
+    const el = document.getElementById('online-count');
+    if (el) el.textContent = data.count + '명';
+  });
+
+
+let frameCount = 0;
+let lastFrameTime = null;
+let fpsBuffer = [];
+let isStreaming = false;
+
+// ── 영상 프레임 수신 ──
+socket.on('video_frame', function(data) {
+  const frame = data.frame;
+  if (!frame) return;
+
+  const img = document.getElementById('liveFrame');
+  const noSignal = document.getElementById('noSignal');
+
+  // 첫 프레임 수신 시
+  if (!isStreaming) {
+    isStreaming = true;
+    img.style.display = 'block';
+    noSignal.style.display = 'none';
+    document.getElementById('live-dot').classList.add('live');
+    setConnected();
+  }
+
+  // 이미지 업데이트
+  img.src = 'data:image/jpeg;base64,' + frame;
+
+  // FPS 계산
+  const now = Date.now();
+  if (lastFrameTime) {
+    const elapsed = (now - lastFrameTime) / 1000;
+    const fps = Math.round(1 / elapsed);
+    fpsBuffer.push(fps);
+    if (fpsBuffer.length > 10) fpsBuffer.shift();
+    const avgFps = Math.round(fpsBuffer.reduce((a,b) => a+b, 0) / fpsBuffer.length);
+    document.getElementById('fps-label').textContent = avgFps + ' FPS';
+    document.getElementById('info-fps').textContent = avgFps + ' FPS';
+  }
+  lastFrameTime = now;
+  frameCount++;
+
+  // 통계 업데이트
+  document.getElementById('info-frames').textContent = frameCount.toLocaleString();
+  const t = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
+  document.getElementById('info-last').textContent = t;
+  document.getElementById('video-time').textContent = t;
+
+  // 로그 추가 (10프레임마다)
+  if (frameCount % 10 === 0) {
+    addLog(`[${t}] 프레임 #${frameCount} 수신`);
+  }
+});
+
+// ── 연결 상태 ──
+function setConnected() {
+  const badge = document.getElementById('conn-badge');
+  badge.className = 'conn-badge connected';
+  document.getElementById('conn-text').textContent = '스트리밍 중';
+  document.getElementById('info-status').textContent = '스트리밍 중';
+  document.getElementById('info-status').style.color = 'var(--success)';
+}
+
+function setDisconnected() {
+  const badge = document.getElementById('conn-badge');
+  badge.className = 'conn-badge disconnected';
+  document.getElementById('conn-text').textContent = '연결 끊김';
+  document.getElementById('info-status').textContent = '연결 끊김';
+  document.getElementById('info-status').style.color = 'var(--danger)';
+  document.getElementById('live-dot').classList.remove('live');
+  document.getElementById('fps-label').textContent = '-- FPS';
+}
+
+// 5초 동안 프레임 없으면 연결 끊김으로 표시
+setInterval(() => {
+  if (isStreaming && lastFrameTime && Date.now() - lastFrameTime > 5000) {
+    isStreaming = false;
+    document.getElementById('liveFrame').style.display = 'none';
+    document.getElementById('noSignal').style.display = 'flex';
+    setDisconnected();
+    addLog('[경고] 스트림 신호 끊김');
+    fpsBuffer = [];
+  }
+}, 1000);
+
+// ── 로그 ──
+function addLog(msg) {
+  const log = document.getElementById('frameLog');
+  const item = document.createElement('div');
+  item.className = 'log-item new';
+  item.textContent = msg;
+  log.prepend(item);
+  setTimeout(() => item.classList.remove('new'), 2000);
+  // 최대 30개
+  while (log.children.length > 30) log.removeChild(log.lastChild);
+}
+
+// ── 시계 ──
+setInterval(() => {
+  if (!isStreaming) {
+    document.getElementById('video-time').textContent =
+      new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
+  }
+}, 1000);
+
+// ── 비상정지 ──
+socket.on('emergency_triggered', function(data) {
+  showAlert('danger', '⚠ 비상정지 발동! — ' + (data.by === 'hardware' ? '하드웨어 버튼' : '웹 관리자'));
+});
+
+function emergencyStop() {
+  if (!confirm('비상정지를 발동하시겠습니까?')) return;
+  socket.emit('emergency_stop');
+}
+
+function showAlert(type, msg) {
+  const el = document.createElement('div');
+  el.className = 'alert alert-' + type;
+  el.textContent = msg;
+  document.getElementById('alert-area').prepend(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+  // 채팅 메시지 알림 (채팅 외 페이지에서도 표시)
+  socket.on('receive_message', function(data) {
+  const currentUserId = '{{ user_id }}';
+
+  if (data.sender_id !== currentUserId) {
+    showAlert('warning',
+      '💬 ' + (data.sender_name || data.sender_id) + '님이 메시지를 보냈습니다.'
+    );
+  }
+});
+
+</script>
+</body>
+</html>

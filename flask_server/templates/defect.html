@@ -1,0 +1,397 @@
+<!-- templates/defect.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>불량 확인 — 스마트 컨베이어</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#1d4ed8;--primary-hover:#1e40af;
+  --navy:#1e3a5f;
+  --text:#111827;--text-sec:#6b7280;--text-muted:#9ca3af;
+  --border:#e5e7eb;--border-light:#f3f4f6;--bg:#f3f4f6;--white:#fff;
+  --danger:#dc2626;--success:#16a34a;--warning:#d97706;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;font-size:14px;}
+
+.navbar{background:var(--navy);height:56px;display:flex;align-items:center;padding:0 28px;gap:0;flex-shrink:0;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.nav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:32px;}
+.nav-brand-icon{width:30px;height:30px;background:var(--primary);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.nav-brand-icon svg{width:17px;height:17px;fill:white;}
+.nav-brand-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.3px;white-space:nowrap;}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1;}
+.nav-link{color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:6px;transition:background .15s,color .15s;white-space:nowrap;}
+.nav-link:hover{background:rgba(255,255,255,.08);color:#fff;}
+.nav-link.active{background:rgba(255,255,255,.13);color:#fff;}
+.nav-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.nav-user{font-size:13px;color:rgba(255,255,255,.5);}
+.nav-logout{font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .15s;}
+.nav-logout:hover{color:#fff;}
+.btn-emergency{display:flex;align-items:center;gap:6px;background:#dc2626;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s;white-space:nowrap;}
+.btn-emergency:hover{background:#b91c1c;}
+.btn-emergency svg{width:14px;height:14px;fill:white;flex-shrink:0;}
+
+.page-content{flex:1;padding:28px 32px;max-width:1280px;width:100%;margin:0 auto;}
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.page-title{font-size:20px;font-weight:700;letter-spacing:-.4px;}
+.page-subtitle{font-size:13px;color:var(--text-sec);margin-top:3px;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;align-items:center;gap:10px;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:20px;box-shadow:var(--shadow-sm);}
+.filter-bar label{font-size:13px;font-weight:600;color:var(--text-sec);white-space:nowrap;}
+.filter-bar input[type="date"]{padding:7px 12px;border:1px solid var(--border);border-radius:7px;font-family:inherit;font-size:13px;color:var(--text);outline:none;}
+.filter-bar input[type="date"]:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(29,78,216,.1);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid transparent;transition:background .15s;}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+.btn-primary:hover{background:var(--primary-hover);}
+
+/* SUMMARY CARDS */
+.summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.sum-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 20px;box-shadow:var(--shadow-sm);}
+.sum-label{font-size:12px;color:var(--text-sec);font-weight:500;margin-bottom:6px;}
+.sum-value{font-size:26px;font-weight:700;letter-spacing:-.5px;}
+.sum-value.red{color:var(--danger);}
+.sum-value.green{color:var(--success);}
+.sum-value.yellow{color:var(--warning);}
+.sum-value.blue{color:var(--primary);}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow-sm);}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.card-title{font-size:14px;font-weight:600;color:var(--text);}
+.chart-wrap{position:relative;height:220px;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:10px 14px;text-align:left;font-size:12px;font-weight:600;color:var(--text-sec);background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border-light);color:var(--text);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:#fafafa;}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-danger{background:#fef2f2;color:#dc2626;}
+.badge-success{background:#f0fdf4;color:#16a34a;}
+.badge-warning{background:#fffbeb;color:#d97706;}
+
+#alert-area{position:fixed;top:68px;right:20px;z-index:200;width:340px;display:flex;flex-direction:column;gap:8px;}
+.alert{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:8px;font-size:13px;box-shadow:0 4px 6px -1px rgba(0,0,0,.07);background:var(--white);border:1px solid var(--border);}
+.alert-danger{border-left:3px solid var(--danger);}
+
+@media(max-width:900px){.summary-row{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/dashboard" class="nav-brand">
+    <div class="nav-brand-icon">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+    </div>
+    <span class="nav-brand-name">스마트 컨베이어 관제</span>
+  </a>
+  <div class="nav-links">
+    <a href="/dashboard" class="nav-link">대시보드</a>
+    <a href="/defect" class="nav-link active">불량 확인</a>
+    <a href="/members" class="nav-link">회원 관리</a>
+    <a href="/monitor" class="nav-link">모니터링</a>
+    <a href="/chat" class="nav-link">채팅</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user">{{ user_name }} ({{ user_id }})</span>
+    <a href="/logout" class="nav-logout">로그아웃</a>
+    <button class="btn-emergency" onclick="emergencyStop()">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      비상정지
+    </button>
+  </div>
+</nav>
+
+<div id="alert-area"></div>
+
+<div class="page-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">불량 확인</div>
+      <div style="font-size:13px;color:var(--text-sec);margin-top:3px;">시간별 불량 현황 및 이벤트 목록</div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <label>날짜 선택</label>
+    <input type="date" id="dateInput">
+    <button class="btn btn-primary" onclick="loadData()">
+      <svg style="width:13px;height:13px;fill:white" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      조회
+    </button>
+  </div>
+
+  <div class="summary-row">
+    <div class="sum-card">
+      <div class="sum-label">총 불량 개수</div>
+      <div class="sum-value red" id="sum-total">0</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-label">불량 유형 수</div>
+      <div class="sum-value yellow" id="sum-types">3종</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-label">불량률</div>
+      <div class="sum-value blue" id="sum-rate">0%</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-label">총 정상 개수</div>
+      <div class="sum-value green" id="sum-normal">0</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">시간별 불량 그래프</span>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="defectChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">시간별 상세 데이터</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>시간</th>
+            <th>온도 평균</th>
+            <th>습도 평균</th>
+            <th>불량 개수</th>
+            <th>정상 개수</th>
+          </tr>
+        </thead>
+        <tbody id="hourly-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">불량 이벤트 목록</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>시간</th>
+            <th>결함 유형</th>
+            <th>결함 개수</th>
+          </tr>
+        </thead>
+        <tbody id="event-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+
+// 오늘 날짜로 기본값 설정 (한국 로컬 시간 기준)
+function getLocalDate() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+document.getElementById('dateInput').value = getLocalDate();
+
+function loadData() {
+  const dateVal = document.getElementById('dateInput').value;
+  
+  // API에서 불량 집계 데이터 가져오기
+  fetch('/api/defect/summary?date=' + dateVal)
+    .then(res => res.json())
+    .then(data => {
+      if (data.status !== 'ok') {
+        console.error('API 오류:', data.message);
+        return;
+      }
+
+      const hourly = data.hourly;       // 시간대별 집계
+      const events = data.events;       // 개별 불량 이벤트 목록
+      const totalDefect = data.total_defect;
+      const totalNormal = data.total_normal || 0;
+      const defectRate = data.defect_rate || 0;
+
+      // ── 9시~18시 고정 표시 ──
+      const displayHours = hourly.filter(h => h.hour >= 9 && h.hour <= 18);
+
+      const hourLabels = displayHours.map(h => h.hour + '시');
+      const defectData = displayHours.map(h => h.defect_count);
+
+      // ── 요약 카드 업데이트 ──
+      // 총 불량 개수 = 불량 이벤트 수
+      document.getElementById('sum-total').textContent = (data.total_defect_events || events.length).toLocaleString();
+      // 불량 유형 수 = 3종 고정
+      document.getElementById('sum-types').textContent = '3종';
+      // 불량률
+      document.getElementById('sum-rate').textContent = defectRate + '%';
+      // 정상 개수
+      document.getElementById('sum-normal').textContent = totalNormal.toLocaleString();
+
+      // ── 시간별 불량 차트 ──
+      if (window._defChart) window._defChart.destroy();
+      window._defChart = new Chart(document.getElementById('defectChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: hourLabels,
+          datasets: [{
+            label: '불량 개수',
+            data: defectData,
+            backgroundColor: 'rgba(220,38,38,.75)',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { font: { size: 12 }, color: '#6b7280' } } },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#9ca3af' } },
+            y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 12 }, color: '#9ca3af' }, beginAtZero: true }
+          }
+        }
+      });
+
+      // ── 시간별 상세 테이블 ──
+      const hourlyNormal = data.hourly_normal || {};
+      const tbody = document.getElementById('hourly-tbody');
+      tbody.innerHTML = displayHours.map(h => {
+        const temp = (h.avg_temp !== null ? h.avg_temp : 0) + ' °C';
+        const humi = (h.avg_humi !== null ? h.avg_humi : 0) + ' %';
+        const dc = h.defect_count;
+        const nc = hourlyNormal[h.hour] || 0;
+        return '<tr>' +
+          '<td>' + h.hour + ':00</td>' +
+          '<td>' + temp + '</td>' +
+          '<td>' + humi + '</td>' +
+          '<td><span class="badge badge-danger">' + dc + '</span></td>' +
+          '<td><span class="badge badge-success">' + nc + '</span></td>' +
+        '</tr>';
+      }).join('');
+
+      // ── 불량 이벤트 목록 테이블 ──
+      const evTbody = document.getElementById('event-tbody');
+      if (events.length === 0) {
+        evTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">해당 날짜에 불량 이벤트가 없습니다.</td></tr>';
+      } else {
+        evTbody.innerHTML = events
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .map(e => {
+          const ts = e.timestamp ? e.timestamp.split(' ')[1] || e.timestamp : '-';
+          return '<tr>' +
+            '<td style="font-size:12px;color:var(--text-muted)">#' + e.id + '</td>' +
+            '<td>' + ts + '</td>' +
+            '<td>' + (e.defect_type || '-') + '</td>' +
+            '<td><span class="badge badge-danger">' + e.defect_count + '개</span></td>' +
+          '</tr>';
+        }).join('');
+      }
+    })
+    .catch(err => {
+      console.error('데이터 로드 실패:', err);
+    });
+}
+
+// 페이지 로드 시 자동 조회
+loadData();
+
+// ── WebSocket: 실시간 불량 알림 수신 ──
+const socket = io();
+
+socket.on('connect', function() {
+  const userId = '{{ user_id }}';
+  if (userId) socket.emit('register_user', { user_id: userId });
+});
+
+// ── 중복 로그인 강제 로그아웃 처리 ──
+socket.on('force_logout', function(data) {
+  alert(data.message || '다른 기기에서 로그인되어 현재 세션이 종료됩니다.');
+  window.location.href = '/login';
+});
+
+setInterval(function() {
+  const userId = '{{ user_id }}';
+  if (userId) socket.emit('heartbeat', {});
+}, 3000);
+
+socket.on('online_count', function(data) {
+  const el = document.getElementById('online-count');
+  if (el) el.textContent = data.count + '명';
+});
+
+// 새 불량 이벤트 실시간 수신 → 자동 새로고침
+socket.on('new_defect', function(data) {
+  showAlert('danger', '⚠ 불량 검출! [' + data.type + '] ' + data.defect_count + '개 — ' + data.timestamp);
+  const today = getLocalDate();
+  const selected = document.getElementById('dateInput').value;
+  if (selected === today) {
+    loadData();
+  }
+});
+
+// 정상 판정 실시간 수신 → 자동 갱신
+socket.on('normal_event', function(data) {
+  const today = getLocalDate();
+  const selected = document.getElementById('dateInput').value;
+  if (selected === today) {
+    loadData();
+  }
+});
+
+// ★ 10초마다 자동 갱신 (오늘 날짜일 때만)
+// ── 중복 로그인 강제 로그아웃 처리 ──
+socket.on('force_logout', function(data) {
+  alert(data.message || '다른 기기에서 로그인되어 현재 세션이 종료됩니다.');
+  window.location.href = '/login';
+});
+
+setInterval(function() {
+  const today = getLocalDate();
+  const selected = document.getElementById('dateInput').value;
+  if (selected === today) {
+    loadData();
+  }
+}, 10000);
+
+// 채팅 메시지 알림
+socket.on('receive_message', function(data) {
+  const currentUserId = '{{ user_id }}';
+  if (data.sender_id !== currentUserId) {
+    showAlert('warning', '💬 ' + (data.sender_name || data.sender_id) + '님이 메시지를 보냈습니다.');
+  }
+});
+
+function emergencyStop() {
+  if (!confirm('비상정지를 발동하시겠습니까?')) return;
+  socket.emit('emergency_stop');
+  showAlert('danger', '⚠ 비상정지 발동! 모든 MFC에 정지 명령을 전송했습니다.');
+}
+
+function showAlert(type, msg) {
+  const area = document.getElementById('alert-area');
+  if (!area) return;
+  const el = document.createElement('div');
+  el.style.cssText = 'display:flex;align-items:center;padding:12px 16px;border-radius:8px;font-size:13px;background:white;border:1px solid #e5e7eb;box-shadow:0 4px 6px rgba(0,0,0,.07);border-left:3px solid ' + (type === 'danger' ? '#dc2626' : '#d97706') + ';';
+  el.textContent = msg;
+  area.prepend(el);
+  setTimeout(() => el.remove(), 5000);
+}
+</script>
+</body>
+</html>

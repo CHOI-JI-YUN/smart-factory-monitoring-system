@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대시보드 — 스마트 컨베이어</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#1d4ed8;--primary-hover:#1e40af;
+  --navy:#1e3a5f;--navy-dark:#152d4a;
+  --text:#111827;--text-sec:#6b7280;--text-muted:#9ca3af;
+  --border:#e5e7eb;--bg:#f3f4f6;--white:#fff;
+  --danger:#dc2626;--success:#16a34a;--warning:#d97706;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -1px rgba(0,0,0,.04);
+}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;font-size:14px;}
+.navbar{background:var(--navy);height:56px;display:flex;align-items:center;padding:0 28px;flex-shrink:0;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.nav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:32px;}
+.nav-brand-icon{width:30px;height:30px;background:var(--primary);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.nav-brand-icon svg{width:17px;height:17px;fill:white;}
+.nav-brand-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.3px;white-space:nowrap;}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1;}
+.nav-link{color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:6px;transition:background .15s,color .15s;white-space:nowrap;}
+.nav-link:hover{background:rgba(255,255,255,.08);color:#fff;}
+.nav-link.active{background:rgba(255,255,255,.13);color:#fff;}
+.nav-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.nav-user{font-size:13px;color:rgba(255,255,255,.5);}
+.nav-logout{font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .15s;}
+.nav-logout:hover{color:#fff;}
+.btn-emergency{display:flex;align-items:center;gap:6px;background:#dc2626;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s;white-space:nowrap;}
+.btn-emergency:hover{background:#b91c1c;}
+.btn-emergency svg{width:14px;height:14px;fill:white;flex-shrink:0;}
+.page-content{flex:1;padding:28px 32px;max-width:1280px;width:100%;margin:0 auto;}
+.page-header{margin-bottom:24px;}
+.page-title{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;}
+.page-subtitle{font-size:13px;color:var(--text-sec);margin-top:3px;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 22px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px;}
+.stat-card-header{display:flex;align-items:center;justify-content:space-between;}
+.stat-label{font-size:12px;font-weight:500;color:var(--text-sec);}
+.stat-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.stat-icon svg{width:16px;height:16px;}
+.icon-red{background:#fef2f2;} .icon-red svg{fill:#dc2626;}
+.icon-blue{background:#eff6ff;} .icon-blue svg{fill:#1d4ed8;}
+.icon-green{background:#f0fdf4;} .icon-green svg{fill:#16a34a;}
+.stat-value{font-size:30px;font-weight:700;color:var(--text);letter-spacing:-.5px;line-height:1;}
+.stat-unit{font-size:12px;color:var(--text-muted);}
+.stat-status{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.status-ok{background:#f0fdf4;color:#16a34a;}
+.status-err{background:#fef2f2;color:#dc2626;}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow-sm);}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.chart-title{font-size:14px;font-weight:600;color:var(--text);}
+.chart-wrap{position:relative;height:220px;}
+#alert-area{position:fixed;top:68px;right:20px;z-index:200;width:340px;display:flex;flex-direction:column;gap:8px;}
+.alert{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);background:var(--white);border:1px solid var(--border);}
+.alert-danger{border-left:3px solid var(--danger);}
+.alert-warning{border-left:3px solid var(--warning);}
+.alert-success{border-left:3px solid var(--success);}
+@media(max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:500px){.stat-grid{grid-template-columns:1fr;}.page-content{padding:20px 16px;}}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/dashboard" class="nav-brand">
+    <div class="nav-brand-icon">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+    </div>
+    <span class="nav-brand-name">스마트 컨베이어 관제</span>
+  </a>
+  <div class="nav-links">
+    <a href="/dashboard" class="nav-link active">대시보드</a>
+    <a href="/defect" class="nav-link">불량 확인</a>
+    <a href="/members" class="nav-link">회원 관리</a>
+    <a href="/monitor" class="nav-link">모니터링</a>
+    <a href="/chat" class="nav-link">채팅</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user">{{ user_name }} ({{ user_id }})</span>
+    <a href="/logout" class="nav-logout">로그아웃</a>
+    <button class="btn-emergency" onclick="emergencyStop()">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      비상정지
+    </button>
+  </div>
+</nav>
+
+<div id="alert-area"></div>
+
+<div class="page-content">
+  <div class="page-header">
+    <div class="page-title">모니터링 대시보드</div>
+    <div class="page-subtitle">센서 데이터 및 시스템 상태 실시간 확인</div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">온도</span>
+        <div class="stat-icon icon-red"><svg viewBox="0 0 24 24"><path d="M15 13V5a3 3 0 00-6 0v8a5 5 0 106 0zm-3 7a3 3 0 110-6 3 3 0 010 6z"/></svg></div>
+      </div>
+      <div class="stat-value" id="val-temp">--</div>
+      <div class="stat-unit">°C</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">습도</span>
+        <div class="stat-icon icon-blue"><svg viewBox="0 0 24 24"><path d="M12 2c-5.33 4.55-8 8.48-8 11.8C4 17.78 7.58 22 12 22s8-4.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/></svg></div>
+      </div>
+      <div class="stat-value" id="val-hum">--</div>
+      <div class="stat-unit">%</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">컨베이어 벨트</span>
+        <div class="stat-icon icon-green" id="conveyor-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v4H6zm3 0h2v4H9zm3 0h2v4h-2zm3 0h2v4h-2z"/></svg></div>
+      </div>
+      <div class="stat-value" id="val-conveyor" style="font-size:26px;color:var(--text-muted)">대기</div>
+      <div class="stat-unit" id="conveyor-unit">MFC 연결 대기</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">시스템 제어</span>
+        <div class="stat-icon icon-green"><svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg></div>
+      </div>
+      <div class="stat-value" id="val-mfc" style="font-size:18px;color:var(--danger)">연결 안됨</div>
+      <span class="stat-status status-err" id="mfc-badge">● 미연결</span>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title">온도 추이</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:12px;color:var(--text-muted)" id="chart-time"></span>
+        <input type="date" id="sensor-date" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text);outline:none;" onchange="loadSensorHistory()">
+        <button onclick="clearSensorDate()" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--white);color:var(--text-sec);cursor:pointer;">실시간</button>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="tempChart"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title">습도 추이</span>
+    </div>
+    <div class="chart-wrap"><canvas id="humChart"></canvas></div>
+  </div>
+</div>
+
+<script>
+// ── WebSocket ──
+const socket = io();
+
+socket.on('connect', function() {
+  const userId = '{{ user_id }}';
+  if (userId) socket.emit('register_user', { user_id: userId });
+});
+
+// ── 중복 로그인 강제 로그아웃 처리 ──
+socket.on('force_logout', function(data) {
+  alert(data.message || '다른 기기에서 로그인되어 현재 세션이 종료됩니다.');
+  window.location.href = '/login';
+});
+
+setInterval(function() {
+  const userId = '{{ user_id }}';
+  if (userId) socket.emit('heartbeat', {});
+}, 3000);
+
+socket.on('online_count', function(data) {
+  const el = document.getElementById('online-count');
+  if (el) el.textContent = data.count + '명';
+});
+
+// ── 차트 (빈 데이터로 시작, MFC 데이터 수신 시 추가) ──
+const MAX_POINTS = 20;
+const labels = [];
+const tempData = [];
+const humData = [];
+
+function makeChart(id, data, color, label) {
+  return new Chart(document.getElementById(id).getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets: [{ label, data, borderColor: color, backgroundColor: color+'18', borderWidth: 2, pointRadius: 3, pointBackgroundColor: color, tension: 0.35, fill: true }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 11 }, color: '#9ca3af', maxTicksLimit: 8 } },
+        y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 11 }, color: '#9ca3af' } }
+      }
+    }
+  });
+}
+const tChart = makeChart('tempChart', tempData, '#1d4ed8', '온도 (°C)');
+const hChart = makeChart('humChart',  humData,  '#0891b2', '습도 (%)');
+
+// ── MFC 센서 데이터 실시간 수신 ──
+let mfcConnected = false;
+let isLiveMode = true;
+
+socket.on('sensor_update', function(data) {
+  const temp = parseFloat(data.temp) || 0;
+  const hum  = parseFloat(data.humidity) || 0;
+  const time = data.timestamp || new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+
+  // 카드 값 업데이트
+  document.getElementById('val-temp').textContent = temp.toFixed(1);
+  document.getElementById('val-hum').textContent  = hum.toFixed(1);
+  document.getElementById('chart-time').textContent = '최근 업데이트: ' + time;
+
+  // MFC 연결 상태
+  if (!mfcConnected) {
+    mfcConnected = true;
+    document.getElementById('val-mfc').textContent = '연결됨';
+    document.getElementById('val-mfc').style.color = 'var(--success)';
+    document.getElementById('mfc-badge').className = 'stat-status status-ok';
+    document.getElementById('mfc-badge').textContent = '● 정상';
+  }
+
+  // 차트 데이터 추가 (실시간 모드일 때만)
+  if (isLiveMode) {
+    labels.push(time);
+    tempData.push(temp);
+    humData.push(hum);
+    if (labels.length > MAX_POINTS) { labels.shift(); tempData.shift(); humData.shift(); }
+    tChart.update('none');
+    hChart.update('none');
+  }
+});
+
+// ── 컨베이어 상태 (MFC에서 자동) ──
+socket.on('conveyor_status', function(data) {
+  const el = document.getElementById('val-conveyor');
+  const unit = document.getElementById('conveyor-unit');
+  const icon = document.getElementById('conveyor-icon');
+  const led = data.led_state || 'off';
+
+  if (led === 'red') {
+    el.textContent = 'E-STOP';
+    el.style.color = 'var(--danger)';
+    unit.textContent = '🔴 비상정지';
+    icon.className = 'stat-icon icon-red';
+  } else if (led === 'yellow') {
+    el.textContent = '검증중';
+    el.style.color = 'var(--warning)';
+    unit.textContent = '🟡 IR 센서 감지 — 일시정지';
+    icon.className = 'stat-icon icon-yellow';
+  } else if (led === 'green') {
+    el.textContent = 'ON';
+    el.style.color = 'var(--success)';
+    unit.textContent = '🟢 정상 가동 중';
+    icon.className = 'stat-icon icon-green';
+  } else {
+    el.textContent = 'OFF';
+    el.style.color = 'var(--text-muted)';
+    unit.textContent = '⚪ 대기';
+    icon.className = 'stat-icon icon-gray';
+  }
+});
+
+// ── 비상정지 ──
+function emergencyStop() {
+  if (!confirm('비상정지를 발동하시겠습니까?')) return;
+  socket.emit('emergency_stop');
+}
+
+socket.on('emergency_triggered', function(data) {
+  document.getElementById('val-conveyor').textContent = 'OFF';
+  document.getElementById('val-conveyor').style.color = 'var(--danger)';
+  document.getElementById('conveyor-unit').textContent = '비상정지';
+  document.getElementById('conveyor-icon').className = 'stat-icon icon-red';
+  showAlert('danger', '⚠ 비상정지 발동! — ' + (data.by === 'hardware' ? '하드웨어 버튼' : '웹 관리자'));
+});
+
+// ── 날짜별 센서 이력 조회 ──
+function loadSensorHistory() {
+  const dateStr = document.getElementById('sensor-date').value;
+  if (!dateStr) return;
+
+  isLiveMode = false;
+  document.getElementById('chart-time').textContent = dateStr + ' 이력';
+
+  fetch('/api/sensor/history?date=' + dateStr)
+    .then(r => r.json())
+    .then(data => {
+      if (data.status !== 'ok') return;
+
+      labels.length = 0;
+      tempData.length = 0;
+      humData.length = 0;
+
+      data.data.forEach(d => {
+        labels.push(d.timestamp);
+        tempData.push(d.temp);
+        humData.push(d.humidity);
+      });
+
+      tChart.update();
+      hChart.update();
+
+      if (data.data.length === 0) {
+        document.getElementById('chart-time').textContent = dateStr + ' 데이터 없음';
+      }
+    });
+}
+
+function clearSensorDate() {
+  document.getElementById('sensor-date').value = '';
+  isLiveMode = true;
+  document.getElementById('chart-time').textContent = '';
+
+  labels.length = 0;
+  tempData.length = 0;
+  humData.length = 0;
+  tChart.update();
+  hChart.update();
+}
+
+function showAlert(type, msg) {
+  const area = document.getElementById('alert-area');
+  const el = document.createElement('div');
+  el.className = 'alert alert-' + type;
+  el.innerHTML = msg;
+  area.prepend(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+  // 채팅 메시지 알림 (채팅 외 페이지에서도 표시)
+  socket.on('receive_message', function(data) {
+  const currentUserId = '{{ user_id }}';
+
+  if (data.sender_id !== currentUserId) {
+    showAlert('warning',
+      '💬 ' + (data.sender_name || data.sender_id) + '님이 메시지를 보냈습니다.'
+    );
+  }
+});
+</script>
+</body>
+</html>

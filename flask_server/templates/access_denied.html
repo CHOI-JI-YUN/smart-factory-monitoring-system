@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>접근 권한 없음 — 스마트 컨베이어</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#1d4ed8;--navy:#1e3a5f;
+  --text:#111827;--text-sec:#6b7280;
+  --border:#e5e7eb;--bg:#f3f4f6;--white:#fff;
+  --danger:#dc2626;
+}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;font-size:14px;}
+
+.navbar{background:var(--navy);height:56px;display:flex;align-items:center;padding:0 28px;flex-shrink:0;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.nav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:32px;}
+.nav-brand-icon{width:30px;height:30px;background:var(--primary);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.nav-brand-icon svg{width:17px;height:17px;fill:white;}
+.nav-brand-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.3px;}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1;}
+.nav-link{color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:6px;transition:background .15s,color .15s;}
+.nav-link:hover{background:rgba(255,255,255,.08);color:#fff;}
+.nav-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.nav-user{font-size:13px;color:rgba(255,255,255,.5);}
+.nav-logout{font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;}
+.nav-logout:hover{color:#fff;}
+
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+
+.denied-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:56px 48px;
+  text-align:center;
+  max-width:440px;
+  width:100%;
+  box-shadow:0 10px 25px rgba(0,0,0,.07);
+}
+.denied-icon{
+  width:64px;height:64px;
+  background:#fef2f2;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+}
+.denied-icon svg{width:32px;height:32px;fill:#dc2626;}
+.denied-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:10px;letter-spacing:-.3px;}
+.denied-desc{font-size:14px;color:var(--text-sec);line-height:1.7;margin-bottom:28px;}
+.denied-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#fef2f2;border:1px solid #fca5a5;
+  color:#dc2626;font-size:12px;font-weight:600;
+  padding:6px 14px;border-radius:20px;
+  margin-bottom:28px;
+}
+.btn-back{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--primary);color:#fff;
+  text-decoration:none;
+  padding:11px 24px;border-radius:8px;
+  font-size:14px;font-weight:600;
+  transition:background .15s;
+}
+.btn-back:hover{background:#1e40af;}
+.btn-back svg{width:16px;height:16px;fill:white;}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/dashboard" class="nav-brand">
+    <div class="nav-brand-icon">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+    </div>
+    <span class="nav-brand-name">스마트 컨베이어 관제</span>
+  </a>
+  <div class="nav-links">
+    <a href="/dashboard" class="nav-link">대시보드</a>
+    <a href="/defect" class="nav-link">불량 확인</a>
+    <a href="/members" class="nav-link active">회원 관리</a>
+    <a href="/monitor" class="nav-link">모니터링</a>
+    <a href="/chat" class="nav-link">채팅</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user">{{ user_name }} ({{ user_id }})</span>
+    <a href="/logout" class="nav-logout">로그아웃</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="denied-card">
+    <div class="denied-icon">
+      <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+    </div>
+    <div class="denied-badge">
+      <svg style="width:12px;height:12px;fill:#dc2626" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      접근 권한 없음
+    </div>
+    <div class="denied-title">회원 관리는 관리자만<br>이용할 수 있습니다</div>
+    <div class="denied-desc">
+      이 페이지는 관리자 권한이 필요합니다.<br>
+      접근이 필요하다면 관리자에게 문의하세요.
+    </div>
+    <a href="/dashboard" class="btn-back">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      대시보드로 돌아가기
+    </a>
+  </div>
+</div>
+
+</body>
+</html>
