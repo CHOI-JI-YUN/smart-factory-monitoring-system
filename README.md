@@ -1,4 +1,4 @@
-# 🏭 스마트 공장 모니터링 시스템
+# 🏭 스마트 공장 모니터링 프로그램
 
 ![Backend](https://img.shields.io/badge/Backend-Python%20%7C%20Flask-black)
 ![Frontend](https://img.shields.io/badge/Frontend-HTML%20%7C%20CSS%20%7C%20JavaScript-blue)
